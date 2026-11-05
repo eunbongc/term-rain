@@ -158,6 +158,16 @@ body {
 .nope .big { font-size:40px; font-weight:800; color:#ff5555; letter-spacing:4px; text-shadow:0 0 20px rgba(255,60,60,0.8); }
 .nope .sub { font-size:13px; color:#ffd9d9; margin-top:8px; line-height:1.6; }
 .nope .sub b { color:#ff9d9d; }
+/* "옳지!" 오버레이 ('아니야!'의 초록 짝) */
+.yep {
+  position:absolute; inset:0; z-index:45; display:none;
+  align-items:center; justify-content:center; flex-direction:column; text-align:center;
+  background:rgba(6,40,18,0.5);
+}
+.yep .big { font-size:40px; font-weight:800; color:#5dff9b; letter-spacing:4px; text-shadow:0 0 20px rgba(60,255,140,0.8); }
+.yep .sub { font-size:16px; color:#eafff0; margin-top:10px; line-height:1.6; }
+.yep .sub b { color:#fff4b0; text-shadow:0 0 8px rgba(255,220,90,0.7); }
+.yep .plus { font-size:13px; color:#8affc0; margin-top:4px; }
 #field.shake { animation:shake .4s; }
 @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
 .drop.amber .typed { color:#fff; }
@@ -251,6 +261,12 @@ body {
       <div class="nope" id="nopeOverlay">
         <div class="big">❌ 아니야~!</div>
         <div class="sub" id="nopeMsg"></div>
+      </div>
+      <!-- 정답 입력 시 "옳지!" -->
+      <div class="yep" id="yepOverlay">
+        <div class="big">✅ 옳지!</div>
+        <div class="sub" id="yepMsg"></div>
+        <div class="plus" id="yepPlus"></div>
       </div>
 
       <!-- 채팅이 끝나면 여기서 파란약이 떠오름 -->
@@ -687,20 +703,21 @@ function hit(d){
   // 레벨업: 5개 맞힐 때마다
   var newLevel = 1 + Math.floor(hits/5);
   if(newLevel!==level){ level=newLevel; elLevel.textContent=level; AudioEngine.sfx.level(); }
-  showMeaningPop(d.data, d.x, d.y);
+  showYep(d.data, gain);
 }
 
-function showMeaningPop(data, x, y){
-  var pop=document.createElement('div');
-  pop.className='meaning-pop';
-  pop.innerHTML='<b>'+data.term+'</b> '+data.ko;
-  field.appendChild(pop);
-  // 위치: 터진 지점 기준, 화면 좌우로 안 넘치게
-  var fw=field.clientWidth;
-  pop.style.left = Math.max(8, Math.min(fw-8, x)) + 'px';
-  pop.style.top = (y-8) + 'px';
-  setTimeout(function(){ pop.classList.add('fade'); }, 40);
-  setTimeout(function(){ pop.remove(); }, 1700);
+// 정답 "옳지!" 오버레이 + 짧은 프리즈 (0.7초) — '아니야!'의 초록 짝
+function showYep(data, gain){
+  var ov=document.getElementById('yepOverlay');
+  document.getElementById('yepMsg').innerHTML = '<b>'+data.term+'</b> '+data.ko;
+  document.getElementById('yepPlus').textContent = '+'+gain+(combo>=2 ? '  ·  COMBO x'+combo : '');
+  ov.style.display='flex';
+  trapFreeze=true;
+  setTimeout(function(){
+    ov.style.display='none';
+    trapFreeze=false;
+    if(running && !paused) input.focus();
+  }, 700);
 }
 
 // 파티클 폭발
@@ -860,6 +877,9 @@ function endGame(reason){
   clearChatTimers();
   AudioEngine.stopBGM();
   showPauseOverlay(false);
+  trapFreeze=false;
+  document.getElementById('nopeOverlay').style.display='none';
+  document.getElementById('yepOverlay').style.display='none';
   drops.forEach(function(d){ d.el.remove(); }); drops=[];
 
   // 일반 모드: 숨겼던 줄 복구
@@ -912,6 +932,9 @@ function backToStart(){
   if(monoAdvance){ document.removeEventListener('keydown', monoAdvance); monoAdvance=null; }
   monoTyping=false; _monoIv=null; _monoCur=null;
   if(input){ input.disabled=false; }   // 게임 입력창 복구
+  trapFreeze=false;
+  document.getElementById('nopeOverlay').style.display='none';
+  document.getElementById('yepOverlay').style.display='none';
   AudioEngine.stopBGM();
   drops.forEach(function(d){ if(d.el) d.el.remove(); }); drops=[];
   var chat=document.getElementById('chatBox'); if(chat) chat.remove();
