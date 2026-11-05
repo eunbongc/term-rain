@@ -149,7 +149,7 @@ body {
 .bluepill.show:hover { opacity:1; }
 @keyframes trapGlitch { 0%,100%{transform:translateX(-50%);} 48%{transform:translateX(-50%);} 50%{transform:translate(calc(-50% - 2px),1px);} 52%{transform:translate(calc(-50% + 2px),-1px);} 54%{transform:translateX(-50%);} }
 
-/* "아니야~!" 오버레이 */
+/* "BAD!" 오버레이 */
 .nope {
   position:absolute; inset:0; z-index:45; display:none;
   align-items:center; justify-content:center; flex-direction:column; text-align:center;
@@ -158,7 +158,7 @@ body {
 .nope .big { font-size:40px; font-weight:800; color:#ff5555; letter-spacing:4px; text-shadow:0 0 20px rgba(255,60,60,0.8); }
 .nope .sub { font-size:13px; color:#ffd9d9; margin-top:8px; line-height:1.6; }
 .nope .sub b { color:#ff9d9d; }
-/* "옳지!" 오버레이 ('아니야!'의 초록 짝) */
+/* "GOOD!" 오버레이 ('BAD!'의 초록 짝) */
 .yep {
   position:absolute; inset:0; z-index:45; display:none;
   align-items:center; justify-content:center; flex-direction:column; text-align:center;
@@ -257,14 +257,14 @@ body {
     <div id="field">
       <div class="ground"></div>
 
-      <!-- 함정 단어 입력 시 "아니야~!" -->
+      <!-- 함정 단어 입력 시 "BAD!" -->
       <div class="nope" id="nopeOverlay">
-        <div class="big">❌ 아니야~!</div>
+        <div class="big">❌ BAD!</div>
         <div class="sub" id="nopeMsg"></div>
       </div>
-      <!-- 정답 입력 시 "옳지!" -->
+      <!-- 정답 입력 시 "GOOD!" -->
       <div class="yep" id="yepOverlay">
-        <div class="big">✅ 옳지!</div>
+        <div class="big">✅ GOOD!</div>
         <div class="sub" id="yepMsg"></div>
         <div class="plus" id="yepPlus"></div>
       </div>
@@ -622,7 +622,7 @@ function flashField(){
   setTimeout(function(){ field.style.boxShadow=''; },160);
 }
 
-// 함정 단어를 쳤을 때 — 감점 + 프리즈 + "아니야~!" + 야유음
+// 함정 단어를 쳤을 때 — 감점 + 프리즈 + "BAD!" + 야유음
 var trapFreeze=false;
 function hitTrap(d){
   var idx = drops.indexOf(d);
@@ -632,7 +632,7 @@ function hitTrap(d){
   score = Math.max(0, score-20);
   elScore.textContent = score;
   AudioEngine.sfx.trap();
-  // "아니야~!" 오버레이 빵 + 화면 흔들림 + 1.2초 프리즈
+  // "BAD!" 오버레이 빵 + 화면 흔들림 + 1.2초 프리즈
   var ov=document.getElementById('nopeOverlay');
   var msg = d.data.joke
     ? '함정이에요 ㅋㅋ  −20점'
@@ -706,7 +706,7 @@ function hit(d){
   showYep(d.data, gain);
 }
 
-// 정답 "옳지!" 오버레이 + 짧은 프리즈 (0.7초) — '아니야!'의 초록 짝
+// 정답 "GOOD!" 오버레이 + 짧은 프리즈 (0.7초) — 'BAD!'의 초록 짝
 function showYep(data, gain){
   var ov=document.getElementById('yepOverlay');
   document.getElementById('yepMsg').innerHTML = '<b>'+data.term+'</b> '+data.ko;
