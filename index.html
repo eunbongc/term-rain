@@ -100,25 +100,37 @@ body {
 .redpill:hover { opacity:0.5; }
 
 /* 빨간약 채팅 */
+/* 빨간약 독백 — 매트릭스풍 CRT 터미널 */
 .chat {
-  position:absolute; inset:0; z-index:22; padding:28px 26px;
-  display:flex; flex-direction:column; gap:14px; overflow-y:auto;
+  position:absolute; inset:0; z-index:22; padding:40px 34px 60px;
+  display:flex; flex-direction:column; justify-content:center; overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 40%, rgba(0,40,15,0.35), #02050a 75%);
 }
-.chat-row { display:flex; }
-.chat-row.left { justify-content:flex-start; }
-.chat-row.right { justify-content:flex-end; }
-.bubble {
-  max-width:82%; padding:11px 16px; border-radius:14px; font-size:16px; line-height:1.5;
-  min-height:1em; white-space:nowrap;
+.mono {
+  max-width:620px; margin:0 auto; width:100%;
+  color:#7dffb0; font-size:16px; line-height:1.95;
+  text-shadow:0 0 7px rgba(60,255,140,0.45);
+  white-space:pre-wrap; word-break:keep-all;
 }
-.bubble.a {
-  background:#0f2a18; color:#8affc0; border:1px solid rgba(90,255,150,0.35);
-  border-bottom-left-radius:4px; text-shadow:0 0 6px rgba(60,255,140,0.4);
+.mono b { color:#fff4b0; text-shadow:0 0 8px rgba(255,230,120,0.5); }
+.mono .dim { color:#5fae82; text-shadow:none; }
+.mono .q { color:#baffd6; }
+.mono .cursor { display:inline-block; width:9px; margin-left:1px;
+  background:#7dffb0; box-shadow:0 0 8px rgba(60,255,140,0.7);
+  animation:monoBlink 0.9s step-end infinite; }
+@keyframes monoBlink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.mono-hint {
+  max-width:620px; margin:18px auto 0; width:100%;
+  color:#4f8f6a; font-size:12px; letter-spacing:1px;
+  opacity:0; transition:opacity .4s;
 }
-.bubble.b {
-  background:#2a1414; color:#ffb0b0; border:1px solid rgba(255,120,120,0.35);
-  border-bottom-right-radius:4px; text-shadow:0 0 6px rgba(255,100,100,0.35);
+.mono-hint.show { opacity:0.9; }
+/* CRT 스캔라인 */
+.chat::before {
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0) 4px);
 }
+.chat .mono, .chat .mono-hint { position:relative; z-index:2; }
 
 /* 채팅이 끝나면 빨간약 대신 파란약을 띄움 — 누르면 첫 화면으로 */
 .bluepill {
@@ -444,25 +456,16 @@ var TRAPS = [
 // 빨간약 모드 — 두 친구의 채팅. A(해맑음,왼쪽) ↔ B(진지,오른쪽)
 // 타이핑 효과로 한 줄씩 자동 등장.
 // ============================================================
+// 빨간약 독백 — 문단 단위로, 클릭(또는 스페이스)하면 다음 문단이 타이핑된다.
+// HTML 태그 허용(강조 b, 흐린 dim, 인용 q).
 var REDPILL = [
-  { who:"A", text:"와 이거 완전 옛날 생각난다 ㅋㅋ" },
-  { who:"B", text:"그치, 산성비 그거 ㅋㅋ" },
-  { who:"A", text:"이거 친구들한테도 보여주자!" },
-  { who:"B", text:"보여주려면 어디다 올려야 되는데?" },
-  { who:"A", text:"그냥 링크 보내면 되는 거 아냐?" },
-  { who:"B", text:"지금은 내 컴에만 있어. 딴 브라우저선 기록이 0부터야" },
-  { who:"A", text:"엥 그럼 점수 자랑 못 해?" },
-  { who:"B", text:"점수 모으려면 서버 필요하고, 그거 돈 들어" },
-  { who:"A", text:"그럼 1등 뽑아서 떡볶이 사기 하자 ㅋㅋ" },
-  { who:"B", text:"누가 1등인지 어딘가에 저장돼야 하잖아…" },
-  { who:"A", text:"사람들 몰리면 대박 아냐?" },
-  { who:"B", text:"몰리면 느려지거나 터져. 감당되는지는 별개야" },
-  { who:"A", text:"광고 붙이면 돈도 벌겠다!" },
-  { who:"B", text:"사람이 많이 와야 광고도 돈이 되지" },
-  { who:"A", text:"에이 그냥 만들면 되는 거잖아~" },
-  { who:"B", text:"만드는 건 쉬워. 근데 '되게' 만드는 건 딴 얘기야" },
-  { who:"A", text:"…그래서 이걸 진짜 하려면?" },
-  { who:"B", text:"그건 교수님께 여쭤보자 ㅋㅋ" }
+  "빨간약을 골랐네요.",
+  "이런 걸 만들어 돌리는 게 된다는 건, 사실 알고 있었어요.\n제 의심은 다른 데 있었습니다 —\n<b>\"이게 캐주얼한 쓰임을 넘어, 기업에서·상업적으로 쓸 만한가?\"</b>",
+  "혼자 쓰거나 소규모로 쓰는 건 되겠지.\n그런데 남들이 같이 쓰고, 데이터가 쌓이고,\n돈과 책임이 걸리는 순간에도 버틸까? 거기엔 회의적이었어요.",
+  "그래서 직접 끝까지 해봤습니다.\n<b>전문 개발자로서가 아니라, 시키는 대로 따라 하는 일반 사용자 입장에서요.</b>\n인터넷에 올리는 것 — 생각보다 훨씬 쉬웠고,\n사람별로 데이터를 저장하는 것도 — 손은 가도, 추가 비용 없이 됐어요.\n제가 \"여기서 막히겠지\" 했던 지점들이, 꽤 많이 사라져 있더군요.",
+  "그런데 제가 정작 <b>우려했던 건 그 다음</b>이었습니다.\n<b>남의 데이터는 남이 못 보게, 아무도 함부로 바꾸지 못하게</b> 막는 것.\n흔히들 로그인만 붙이면 된다고 생각하기 쉽지만, <b>인증과 인가는 다릅니다.</b>\n\"누구인가\"를 확인하는 것과 \"무엇을 할 자격이 있는가\"를 통제하는 건 별개고,\n이건 <b>반드시 따로 검토하고 확인해야 하는</b> 영역이었어요.\n바로 여기가 — 소규모로 쓰는 것과, 널리 믿고 쓸 만한 것을 가르는 선이라고 봅니다.",
+  "만들고 올리는 건 이제 거의 문턱이 사라졌어요.\n이 '검토'마저도 머지않아 상당 부분 자동화될 거라고 생각합니다.\n다만 지금은 과도기니까 — 무엇을 맡기고 무엇을 지킬지, 어디까지가 안전한지,\n아직은 사람이 한 번 더 들여다보며 <b>주의해서 나아가면</b> 좋겠습니다.",
+  "<span class=\"dim\">— 흥미와 걱정 사이에서, 이 속도를 지켜보며</span>"
 ];
 
 // ============================================================
@@ -758,58 +761,97 @@ function startGame(mode){
 }
 
 // ============================================================
-// 빨간약 채팅 엔진 — 좌우 말풍선 + 타이핑, 자동 진행
+// 빨간약 독백 엔진 — 문단 단위, 클릭/스페이스로 진행, CRT 타이핑
 // ============================================================
 var chatTimers=[];
-function clearChatTimers(){ chatTimers.forEach(function(t){ clearTimeout(t); }); chatTimers=[]; }
+function clearChatTimers(){ chatTimers.forEach(function(t){ clearTimeout(t); clearInterval(t); }); chatTimers=[]; }
+
+var monoIdx=0, monoTyping=false, monoBox=null, monoEl=null, monoHint=null, monoAdvance=null;
 
 function startChat(){
   running=true; paused=false;
   AudioEngine.resume(); AudioEngine.startBGM();
-  // HUD 숨김(점수·시간·생명 의미 없음)
   document.getElementById('hudGame').style.display='none';
-  // 기존 field 자식을 지우지 않고, 채팅 레이어만 추가 (오버레이 요소 보존)
+  // 독백 중에는 게임 입력창이 Enter/스페이스를 가로채지 않도록 차단
+  if(input){ input.blur(); input.disabled=true; }
   var old=document.getElementById('chatBox'); if(old) old.remove();
-  var chat=document.createElement('div');
-  chat.className='chat'; chat.id='chatBox';
-  field.appendChild(chat);
+  monoBox=document.createElement('div');
+  monoBox.className='chat'; monoBox.id='chatBox';
+  monoEl=document.createElement('div'); monoEl.className='mono';
+  monoHint=document.createElement('div'); monoHint.className='mono-hint'; monoHint.textContent='▼ 클릭하여 계속';
+  monoBox.appendChild(monoEl); monoBox.appendChild(monoHint);
+  field.appendChild(monoBox);
   clearChatTimers();
-  var delay=400;
-  REDPILL.forEach(function(line, i){
-    var t=setTimeout(function(){ typeLine(chat, line, i===REDPILL.length-1); }, delay);
-    chatTimers.push(t);
-    // 다음 줄까지 간격: 글자수에 비례 + 여유
-    delay += 650 + line.text.length*55;
-  });
-  // 전체 끝난 뒤 파란약 노출(채팅만 하고 끝)
-  var endT=setTimeout(function(){ if(running) showBluepill(); }, delay+1000);
-  chatTimers.push(endT);
+  monoIdx=0;
+  // 진행 입력: 클릭 또는 스페이스/엔터
+  monoAdvance=function(e){
+    if(e && e.type==='keydown' && e.key!==' ' && e.key!=='Enter') return;
+    if(e && e.preventDefault) e.preventDefault();
+    if(monoTyping){ finishMonoLine(); }   // 타이핑 중이면 즉시 완성(스킵)
+    else { nextMonoLine(); }
+  };
+  monoBox.addEventListener('click', monoAdvance);
+  document.addEventListener('keydown', monoAdvance);
+  nextMonoLine();
+}
+
+var _monoIv=null, _monoCur=null;
+function nextMonoLine(){
+  if(!running) return;
+  if(monoIdx>=REDPILL.length){ endMono(); return; }
+  monoHint.classList.remove('show');
+  var para=REDPILL[monoIdx++];
+  // 이전 문단은 지우고, 새 문단만 중앙에 표시
+  monoEl.innerHTML='';
+  var p=document.createElement('div');
+  monoEl.appendChild(p);
+  typeMono(p, para);
+  monoBox.scrollTop=0;
+}
+
+// HTML 태그는 즉시 반영하고, 보이는 텍스트만 한 글자씩 타이핑
+function typeMono(p, html){
+  monoTyping=true; _monoCur={p:p, html:html};
+  // 토큰화: 태그 or 텍스트
+  var tokens=html.match(/<[^>]+>|[^<]+/g)||[];
+  var ti=0, ci=0, out='';
+  AudioEngine.sfx && AudioEngine.sfx.hit && AudioEngine.sfx.hit();
+  _monoIv=setInterval(function(){
+    if(!running){ clearInterval(_monoIv); return; }
+    if(ti>=tokens.length){ clearInterval(_monoIv); finishMonoLine(); return; }
+    var tk=tokens[ti];
+    if(tk.charAt(0)==='<'){ out+=tk; ti++; ci=0; }   // 태그는 통째로
+    else {
+      out+=tk.charAt(ci++);
+      if(ci>=tk.length){ ti++; ci=0; }
+    }
+    p.innerHTML=out+'<span class="cursor">&nbsp;</span>';
+    monoBox.scrollTop=monoBox.scrollHeight;
+  }, 20);
+  chatTimers.push(_monoIv);
+}
+
+function finishMonoLine(){
+  if(_monoIv) clearInterval(_monoIv);
+  monoTyping=false;
+  if(_monoCur){ _monoCur.p.innerHTML=_monoCur.html; }  // 타이핑 끝난 문단은 커서 제거
+  monoBox.scrollTop=monoBox.scrollHeight;
+  if(monoIdx>=REDPILL.length){ endMono(); }
+  else { monoHint.classList.add('show'); }
+}
+
+function endMono(){
+  // 마지막 커서 정리 후 파란약 노출
+  monoHint.classList.remove('show');
+  var t=setTimeout(function(){ if(running) showBluepill(); }, 600);
+  chatTimers.push(t);
 }
 
 function showBluepill(){
   running=false;
   AudioEngine.stopBGM();
+  if(monoAdvance){ document.removeEventListener('keydown', monoAdvance); }
   document.getElementById('bluepillBtn').classList.add('show');
-}
-
-function typeLine(chat, line, isLast){
-  if(!running) return;
-  var row=document.createElement('div');
-  row.className='chat-row '+(line.who==='A'?'left':'right');
-  var bubble=document.createElement('div');
-  bubble.className='bubble '+(line.who==='A'?'a':'b');
-  row.appendChild(bubble);
-  chat.appendChild(row);
-  chat.scrollTop = chat.scrollHeight;
-  // 타이핑 효과
-  var txt=line.text, k=0;
-  AudioEngine.sfx.hit();
-  var iv=setInterval(function(){
-    if(!running){ clearInterval(iv); return; }
-    bubble.textContent = txt.slice(0,++k);
-    chat.scrollTop = chat.scrollHeight;
-    if(k>=txt.length){ clearInterval(iv); }
-  }, 45);
 }
 
 function endGame(reason){
@@ -820,20 +862,6 @@ function endGame(reason){
   showPauseOverlay(false);
   drops.forEach(function(d){ d.el.remove(); }); drops=[];
 
-  // 빨간약 모드: 점수·기록 대신 메시지 엔딩
-  if(reason==='redpill'){
-    var head0 = document.getElementById('endHead');
-    if(head0) head0.textContent = '…그래서?';
-    document.getElementById('finalScore').textContent='';
-    document.getElementById('finalHits').parentNode.style.display='none';
-    document.getElementById('finalAcc').parentNode.style.display='none';
-    document.getElementById('finalGrade').innerHTML =
-      '게임 하나 만드는 건 이제 몇 시간이면 돼요.<br>하지만 "남들도 쓰게, 돈이 되게" 만드는 건 완전히 다른 일이에요.<br><span style="color:#8affc0;">서버 · 데이터 · 보안 · 비용 · 수익 모델…</span><br><br>이런 고민이 들기 시작했다면,<br>그게 바로 <b style="color:#fff4b0;">진짜 시작</b>이에요.<br><br><span style="color:#ff9d9d;">💬 그 다음이 궁금하면, 교수님께 여쭤봐요.</span>';
-    document.getElementById('finalRecord').innerHTML='';
-    AudioEngine.sfx.over();
-    document.getElementById('endOverlay').style.display='flex';
-    return;
-  }
   // 일반 모드: 숨겼던 줄 복구
   document.getElementById('finalHits').parentNode.style.display='';
   document.getElementById('finalAcc').parentNode.style.display='';
@@ -881,6 +909,9 @@ function backToStart(){
   running=false; paused=false;
   if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
   clearChatTimers();
+  if(monoAdvance){ document.removeEventListener('keydown', monoAdvance); monoAdvance=null; }
+  monoTyping=false; _monoIv=null; _monoCur=null;
+  if(input){ input.disabled=false; }   // 게임 입력창 복구
   AudioEngine.stopBGM();
   drops.forEach(function(d){ if(d.el) d.el.remove(); }); drops=[];
   var chat=document.getElementById('chatBox'); if(chat) chat.remove();
